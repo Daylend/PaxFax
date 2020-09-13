@@ -7,10 +7,10 @@ from discord.ext import commands
 master = "Daylend#0001"
 masterid = 113156025984520192
 guildid = 688826072187404290
-channelid = 689766528224460820
+blab_channelid = 689766528224460820
 names = ["Daylend", "everyone", "nobody", "Brizz", "Nemo", "Snu", "Jay", "Panda", "Golddog", "Raiyun", "Spacefrog",
-         "Zeropa", "Caldra", "Jael"]
-cogs = ["Fun", "Owner", "Information"]
+         "Zeropa", "Caldra", "Jael", "Seki"]
+cogs = ["Fun", "Owner", "Information", "Moderation"]
 angrystuff_file = "paxfax_toxic.txt"
 blabs_file = "paxfax.txt"
 suggestion_file = "paxfax_suggestions.txt"
@@ -22,11 +22,12 @@ class PaxFax(commands.AutoShardedBot):
     angrystuff = []
     names = []
     slowmode = True
+    attendance_channelid = 0
 
     def __init__(self):
         super().__init__(command_prefix=prefix, owner_id=masterid, reconnect=True, case_insensitive=True)
 
-        self.embed_color = 0xF15A24
+        self.embed_color = 0x0099FF
         self.load_extension('jishaku')
 
     async def on_ready(self):
@@ -71,7 +72,7 @@ class PaxFax(commands.AutoShardedBot):
         await self.process_commands(message)
 
     async def blab(self):
-        channel = await client.fetch_channel(channelid)
+        channel = await client.fetch_channel(blab_channelid)
 
         # Make sure the bot doesn't fill up chat
         if not client.user.id == channel.last_message_id:
