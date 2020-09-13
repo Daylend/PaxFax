@@ -102,10 +102,6 @@ class Moderation(commands.Cog):
             return
 
         async with ctx.channel.typing():
-
-            # Get a list of all members with the "member" role
-            members = await self.get_members_with_role(ctx, self.member_roleid)
-
             ch = await self.bot.fetch_channel(self.attendance_channelid)
             msgs = await ch.history(limit=100).flatten()
             reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
