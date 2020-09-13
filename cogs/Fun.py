@@ -25,5 +25,10 @@ class Fun(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=['suggest'])
+    async def _suggest(self, ctx, *, message):
+        await self.bot.add_suggestion(message)
+        await ctx.send("Your suggestion has been added to the suggestion box! Thank you")
+
 def setup(bot):
     bot.add_cog(Fun(bot))

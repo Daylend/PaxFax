@@ -9,10 +9,11 @@ masterid = 113156025984520192
 guildid = 688826072187404290
 channelid = 689766528224460820
 names = ["Daylend", "everyone", "nobody", "Brizz", "Nemo", "Snu", "Jay", "Panda", "Golddog", "Raiyun", "Spacefrog",
-         "Zeropa", "Caldra"]
-cogs = ["Fun", "Owner"]
+         "Zeropa", "Caldra", "Jael"]
+cogs = ["Fun", "Owner", "Information"]
 angrystuff_file = "paxfax_toxic.txt"
 blabs_file = "paxfax.txt"
+suggestion_file = "paxfax_suggestions.txt"
 key_file = "key.txt"
 prefix = '.'
 
@@ -40,10 +41,13 @@ class PaxFax(commands.AutoShardedBot):
 
     async def blab_task(self):
         while True:
+            delay = 0
             if self.slowmode:
-                await asyncio.sleep(random.randrange(3600*10,3600*24))
+                delay = random.randrange(3600*10,3600*24)
             else:
-                await asyncio.sleep(random.randrange(5*60,10*60))
+                delay = random.randrange(10*60,30*60)
+            print(f"Waiting {delay} before next blab")
+            await asyncio.sleep(delay)
             await self.blab()
 
     async def presence_task(self):
@@ -57,15 +61,23 @@ class PaxFax(commands.AutoShardedBot):
             return
 
         if str(client.user) in message.content or str(client.user.id) in message.content:
-            await message.channel.send('{} {}'.format(message.author.mention, self.angrystuff[random.randrange(len(self.angrystuff))]))
+            # Roll to see if we're saying an angry response
+            if random.randrange(0,3) == 0:
+                await message.channel.send('{} {}'.format(message.author.mention, self.blabs[random.randrange(len(self.blabs))]))
+            else:
+                await message.channel.send('{} {}'.format(message.author.mention, self.angrystuff[random.randrange(len(self.angrystuff))]))
 
         print('Guild: {0.guild} Channel: {0.channel} From {0.author}: {0.content}'.format(message))
         await self.process_commands(message)
 
     async def blab(self):
         channel = await client.fetch_channel(channelid)
+
+        # Make sure the bot doesn't fill up chat
         if not client.user.id == channel.last_message_id:
-            await channel.send(self.blabs[random.randrange(len(self.blabs))])
+            blab = self.blabs[random.randrange(len(self.blabs))]
+            await channel.send(blab)
+            print(f"Blabbed: {blab}")
 
     async def load_blabs(self):
         with open(blabs_file) as f:
@@ -74,6 +86,18 @@ class PaxFax(commands.AutoShardedBot):
     async def load_angrystuff(self):
         with open(angrystuff_file) as f:
             self.angrystuff = f.read().splitlines()
+
+    async def add_blab(self, message):
+        with open(blabs_file, "a") as f:
+            f.write("\n" + message)
+
+    async def add_angrystuff(self, message):
+        with open(angrystuff_file, "a") as f:
+            f.write("\n" + message)
+
+    async def add_suggestion(self, message):
+        with open(suggestion_file, "a") as f:
+            f.write("\n" + message)
 
     async def load_cogs(self):
         try:
