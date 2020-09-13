@@ -66,8 +66,6 @@ class Moderation(commands.Cog):
                     return reaction.emoji.url
         return None
 
-    #@commands.has_permissions(administrator=True)
-    @commands.is_owner()
     @commands.command(name='remind')
     async def _remind(self, ctx):
         # We only want this to run if we're in the guild discord
@@ -82,20 +80,21 @@ class Moderation(commands.Cog):
         msgs = await ch.history(limit=100).flatten()
         reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
         reactusers = await self.find_members_with_reacts(msgs, reactemotes)
-        embed = discord.Embed(
-            color=self.bot.embed_color,
-            title="Attendance Report",
-            description="Current list of members who have not reacted to attendance"
-        )
 
         # Remove members that have already reacted
         for user in reactusers:
             if user in members:
                 members.remove(user)
 
+        embed = discord.Embed(
+            color=self.bot.embed_color,
+            title=f"Attendance Report ({len(members)})",
+            description=f"Current list of members who have not reacted to attendance this week."
+                        f" {len(members)} have not signed up."
+        )
+
         await self.print_users(ctx, embed, members)
 
-    @commands.is_owner()
     @commands.command(name='attendance')
     async def _attendance(self, ctx, *, msg):
         # We only want this to run if we're in the guild discord
@@ -121,14 +120,15 @@ class Moderation(commands.Cog):
 
             for react in reactemotes:
                 url = await self.get_url_from_emoji_name(msgs, react)
+                reactusers = await self.find_members_with_reacts([reactmsg], [react])
+                reactusers.sort(key=lambda x: x.display_name)
+
                 embed = discord.Embed(
                         color=self.bot.embed_color,
-                        title=f"{self.emotedict[react]}",
+                        title=f"{self.emotedict[react]} ({len(reactusers)})",
                 )
                 embed.set_thumbnail(url=url)
                 embed.url=reactmsg.jump_url
-                reactusers = await self.find_members_with_reacts([reactmsg], [react])
-                reactusers.sort(key=lambda x: x.display_name)
                 await self.print_users(ctx, embed, reactusers)
 
 

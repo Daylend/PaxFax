@@ -46,6 +46,12 @@ class Owner(commands.Cog):
             await ctx.send(f"Something went wrong")
             print(f"Clear exception: {e}")
 
+    @commands.is_owner()
+    @commands.command(aliases=["echo"])
+    async def _echo(self, ctx, *, msg):
+        await ctx.message.delete()
+        await ctx.send(msg)
+
 
 
 def setup(bot):
