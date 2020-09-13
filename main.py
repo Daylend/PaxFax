@@ -28,7 +28,6 @@ class PaxFax(commands.AutoShardedBot):
         super().__init__(command_prefix=prefix, owner_id=masterid, reconnect=True, case_insensitive=True)
 
         self.embed_color = 0x0099FF
-        self.load_extension('jishaku')
 
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
