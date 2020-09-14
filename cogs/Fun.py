@@ -15,7 +15,7 @@ class Fun(commands.Cog):
     async def _ping_error(self, ctx, error):
         await ctx.send("Something went wrong apparently idk")
 
-    @commands.command(aliases=['avatar'])
+    @commands.command(name='avatar')
     async def _avatar(self, ctx, member: discord.Member):
         embed = discord.Embed(
             color=self.bot.embed_color,
@@ -25,7 +25,7 @@ class Fun(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['suggest'])
+    @commands.command(name='suggest')
     async def _suggest(self, ctx, *, message):
         await self.bot.add_suggestion(message)
         await ctx.send("Your suggestion has been added to the suggestion box! Thank you")

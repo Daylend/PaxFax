@@ -1,4 +1,7 @@
+import discord
 from discord.ext import commands
+import aiohttp
+from discord import Webhook, AsyncWebhookAdapter
 
 class Owner(commands.Cog):
 
@@ -52,7 +55,16 @@ class Owner(commands.Cog):
         await ctx.message.delete()
         await ctx.send(msg)
 
-
+    @commands.is_owner()
+    @commands.command(aliases=["mock"])
+    async def _mock(self, ctx, member: discord.Member, *, msg):
+        await ctx.message.delete()
+        avatar = await member.avatar_url_as(size=128, format=None, static_format="png").read()
+        hook = await ctx.channel.create_webhook(name=member.display_name,
+                                                avatar=avatar,
+                                                reason="This should be deleted automagically")
+        await hook.send(msg, username=member.display_name)
+        await hook.delete()
 
 def setup(bot):
     bot.add_cog(Owner(bot))

@@ -9,8 +9,8 @@ masterid = 113156025984520192
 guildid = 688826072187404290
 blab_channelid = 689766528224460820
 names = ["Daylend", "everyone", "nobody", "Brizz", "Nemo", "Snu", "Jay", "Panda", "Golddog", "Raiyun", "Spacefrog",
-         "Zeropa", "Caldra", "Jael", "Seki"]
-cogs = ["Fun", "Owner", "Information", "Moderation"]
+         "Zeropa", "Caldra", "Jael", "Seki", "Zen"]
+cogs = ["Fun", "Owner", "Information", "Moderation", "Apocalypse"]
 angrystuff_file = "paxfax_toxic.txt"
 blabs_file = "paxfax.txt"
 suggestion_file = "paxfax_suggestions.txt"
@@ -121,7 +121,7 @@ def get_key():
 
 if __name__ == '__main__':
     logger = logging.getLogger('discord')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
     handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
     logger.addHandler(handler)
