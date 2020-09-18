@@ -13,6 +13,20 @@ class Apocalypse(commands.Cog):
     testvc1 = 689760834955509764
     testvc2 = 691906650289864734
     flex_roleid = 712302975821021194
+    role_prefix = "attendance_"
+    announcement_chid = 756330674927173693
+    attendance_channelid = 704239533914324992
+    apocalypse_guildid = 688826072187404290
+    member_roleid = 688944180298514440
+    yes_emote = "CheckmarkNeon"
+    maybe_emote = "Neon_Maybe"
+    no_emote = "XNeon"
+    emotedict = {yes_emote: "Yes'd Up", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
+
+    def is_in_apocalypse():
+        async def predicate(ctx):
+            return ctx.guild and ctx.guild.id == 688826072187404290
+        return commands.check(predicate)
 
     async def move_category_to_vc(self, vcc, vc, exclude_names=None):
         # Move everyone in normal voice category to prepost
@@ -23,63 +37,6 @@ class Apocalypse(commands.Cog):
             if not any(v.name.lower() in name.lower() for name in exclude_names):
                 for member in v.members:
                     await member.move_to(vc)
-
-    @commands.has_permissions(administrator=True)
-    @commands.command(name="move")
-    async def _move(self, ctx, *, msg):
-        # Moves everyone from normal voice channels to pre/post
-        if msg == "prewar":
-            normalvc = await self.bot.fetch_channel(self.normalvc)
-            prepostvc = await self.bot.fetch_channel(self.prepostvc)
-            normalvcc = normalvc.category
-
-            await self.move_category_to_vc(normalvcc, prepostvc)
-        # Moves everyone from pre/post to offense/flex depending on role
-        elif msg == "war":
-            prepostvc = await self.bot.fetch_channel(self.prepostvc)
-            offensevc = await self.bot.fetch_channel(self.offensevc)
-            flexvc = await self.bot.fetch_channel(self.flexvc)
-            flexrole = prepostvc.guild.get_role(self.flex_roleid)
-
-            for member in prepostvc.members:
-                if flexrole in member.roles:
-                    await member.move_to(flexvc)
-                else:
-                    await member.move_to(offensevc)
-
-        # Moves everyone from other war voice channels to pre/post
-        elif msg == "postwar":
-            prepostvc = await self.bot.fetch_channel(self.prepostvc)
-            warvcc = prepostvc.category
-
-            await self.move_category_to_vc(warvcc, prepostvc, ["Pre/Post War/RBF"])
-        # Moves everyone from war voice channels to normal vc
-        elif msg == "endwar":
-            prepostvc = await self.bot.fetch_channel(self.prepostvc)
-            warvcc = prepostvc.category
-            normalvc = await self.bot.fetch_channel(self.normalvc)
-
-            await self.move_category_to_vc(warvcc, normalvc)
-        """elif msg == "clone":
-            mem = ctx.author
-            vc = mem.voice.channel
-
-            if vc is not None:
-                invites = await vc.invites()
-                if len(invites)<1:
-                    vc2 = await vc.clone(reason="Moving people to new channel")
-                    for member in vc.members:
-                        await member.move_to(vc2)
-                else:
-                    await ctx.send("Can't clone current channel as it has invites")"""
-
-    attendance_channelid = 704239533914324992
-    attendance_guildid = 688826072187404290
-    member_roleid = 688944180298514440
-    yes_emote = "CheckmarkNeon"
-    maybe_emote = "Neon_Maybe"
-    no_emote = "XNeon"
-    emotedict = {yes_emote: "Yes'd Up", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
 
     # Get all members with a specific roleid
     async def get_members_with_role(self, ctx, roleid):
@@ -134,12 +91,67 @@ class Apocalypse(commands.Cog):
                     return reaction.emoji.url
         return None
 
+    async def get_role_from_guild(self, guild, rolename):
+        # Check to see if role exists
+        for role in guild.roles:
+            if role.name == rolename:
+                # Don't return admin roles because I don't want to break something
+                if role.permissions.administrator is not True:
+                    return role
+        return None
+
+    @is_in_apocalypse()
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="move")
+    async def _move(self, ctx, *, msg):
+        # Moves everyone from normal voice channels to pre/post
+        if msg == "prewar":
+            normalvc = await self.bot.fetch_channel(self.normalvc)
+            prepostvc = await self.bot.fetch_channel(self.prepostvc)
+            normalvcc = normalvc.category
+
+            await self.move_category_to_vc(normalvcc, prepostvc)
+        # Moves everyone from pre/post to offense/flex depending on role
+        elif msg == "war":
+            prepostvc = await self.bot.fetch_channel(self.prepostvc)
+            offensevc = await self.bot.fetch_channel(self.offensevc)
+            flexvc = await self.bot.fetch_channel(self.flexvc)
+            flexrole = prepostvc.guild.get_role(self.flex_roleid)
+
+            for member in prepostvc.members:
+                if flexrole in member.roles:
+                    await member.move_to(flexvc)
+                else:
+                    await member.move_to(offensevc)
+        # Moves everyone from other war voice channels to pre/post
+        elif msg == "postwar":
+            prepostvc = await self.bot.fetch_channel(self.prepostvc)
+            warvcc = prepostvc.category
+
+            await self.move_category_to_vc(warvcc, prepostvc, ["Pre/Post War/RBF"])
+        # Moves everyone from war voice channels to normal vc
+        elif msg == "endwar":
+            prepostvc = await self.bot.fetch_channel(self.prepostvc)
+            warvcc = prepostvc.category
+            normalvc = await self.bot.fetch_channel(self.normalvc)
+
+            await self.move_category_to_vc(warvcc, normalvc)
+        """elif msg == "clone":
+            mem = ctx.author
+            vc = mem.voice.channel
+
+            if vc is not None:
+                invites = await vc.invites()
+                if len(invites)<1:
+                    vc2 = await vc.clone(reason="Moving people to new channel")
+                    for member in vc.members:
+                        await member.move_to(vc2)
+                else:
+                    await ctx.send("Can't clone current channel as it has invites")"""
+
+    @is_in_apocalypse()
     @commands.command(name='remind')
     async def _remind(self, ctx):
-        # We only want this to run if we're in the guild discord
-        if ctx.guild.id != self.attendance_guildid:
-            return
-
         # Get a list of all members with the "member" role
         members = await self.get_members_with_role(ctx, self.member_roleid)
 
@@ -163,12 +175,9 @@ class Apocalypse(commands.Cog):
 
         await self.print_users(ctx, embed, members)
 
+    @is_in_apocalypse()
     @commands.command(name='attendance')
     async def _attendance(self, ctx, *, msg):
-        # We only want this to run if we're in the guild discord
-        if ctx.guild.id != self.attendance_guildid:
-            return
-
         async with ctx.channel.typing():
             ch = await self.bot.fetch_channel(self.attendance_channelid)
             msgs = await ch.history(limit=100).flatten()
@@ -195,13 +204,44 @@ class Apocalypse(commands.Cog):
                 embed.url=reactmsg.jump_url
                 await self.print_users(ctx, embed, reactusers)
 
+    @is_in_apocalypse()
+    @commands.has_permissions(administrator=True)
+    @commands.command(name='announce')
+    async def _announce(self, ctx, day, *, msg):
+        day = day.lower()
+
+        announcement_ch = await self.bot.fetch_channel(self.announcement_chid)
+
+        # Delete old attendance roles
+        for role in ctx.guild.roles:
+            if role.name.startswith(self.role_prefix):
+                # Make sure we're not deleting something important
+                if role.permissions.administrator is not True:
+                    #await ctx.send(f"Pretending to delete role {role.name}")
+                    await role.delete(reason="New announcement")
+
+        newrole = await ctx.guild.create_role(name=self.role_prefix + day, reason="New announcement")
+
+        ch = await self.bot.fetch_channel(self.attendance_channelid)
+        msgs = await ch.history(limit=100).flatten()
+        reactemotes = [self.yes_emote, self.maybe_emote]
+        reactmsg = await self.find_message_with_attachment(msgs, day)
+        if reactmsg is not None:
+            reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
+
+            for member in reactusers:
+                await member.add_roles(newrole, reason="New announcement")
+
+            # There shouldn't be more than 10 msgs. Just in case. :)
+            await announcement_ch.purge(limit=10)
+            await announcement_ch.set_permissions(newrole, read_messages=True)
+            #await announcement_ch.send(f"{newrole.mention} {msg}")
+            await announcement_ch.send(f"fake mention {newrole.name} {msg}")
+
+    @is_in_apocalypse()
     @commands.has_permissions(administrator=True)
     @commands.command(name='notify')
     async def _notify(self, ctx):
-        # We only want this to run if we're in the guild discord
-        if ctx.guild.id != self.attendance_guildid:
-            return
-
         # Get a list of all members with the "member" role
         members = await self.get_members_with_role(ctx, self.member_roleid)
 
@@ -235,6 +275,53 @@ class Apocalypse(commands.Cog):
                     f"but we use it to make sure we're on the right size nodes, " \
                     f"so it's information we really need. Thank you!"
         await ctx.send(printmsg)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        channel = await self.bot.fetch_channel(payload.channel_id)
+        user = await channel.guild.fetch_member(payload.user_id)
+        message = await channel.fetch_message(payload.message_id)
+        # Is it this bot's message and is the user reacting not the bot
+        # reaction.message.author == reaction.message.guild.me and
+        if user is not message.guild.me:
+            going_reactions = [self.yes_emote, self.maybe_emote]
+            # If it's a reaction to attendance
+            if message.channel.id == self.attendance_channelid:
+                # If the message has an attachment
+                if len(message.attachments) == 1:
+                    # If it's an "attending" reaction
+                    if payload.emoji.name in going_reactions:
+                        # Get attachment name to use as role name
+                        name = message.attachments[0].filename.split('.')[0].lower()
+                        role = await self.get_role_from_guild(message.guild, self.role_prefix+name)
+                        if role is not None:
+                            await user.add_roles(role, reason="Announcement role")
+                        else:
+                            newrole = await message.guild.create_role(name=self.role_prefix+name,
+                                                                               reason="New announcement")
+                            await user.add_roles(newrole, reason="Announcement role")
+                            announcement_ch = await self.bot.fetch_channel(self.announcement_chid)
+                            await announcement_ch.set_permissions(newrole, read_messages=True)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        channel = await self.bot.fetch_channel(payload.channel_id)
+        user = await channel.guild.fetch_member(payload.user_id)
+        message = await channel.fetch_message(payload.message_id)
+        # Is it this bot's message and is the user reacting not the bot
+        # reaction.message.author == reaction.message.guild.me and
+        if user is not message.guild.me:
+            going_reactions = [self.yes_emote, self.maybe_emote]
+            # If it's a reaction to attendance
+            if message.channel.id == self.attendance_channelid:
+                # If the message has an attachment
+                if len(message.attachments) == 1:
+                    # If it's an "attending" reaction
+                    if payload.emoji.name in going_reactions:
+                        name = message.attachments[0].filename.split('.')[0].lower()
+                        role = await self.get_role_from_guild(message.guild, self.role_prefix+name)
+                        if role is not None:
+                            await user.remove_roles(role, reason="Removed reaction from attendance")
 
 def setup(bot):
     bot.add_cog(Apocalypse(bot))

@@ -67,7 +67,7 @@ class PaxFax(commands.AutoShardedBot):
             else:
                 await message.channel.send('{} {}'.format(message.author.mention, self.angrystuff[random.randrange(len(self.angrystuff))]))
 
-        print('Guild: {0.guild} Channel: {0.channel} From {0.author}: {0.content}'.format(message))
+        #print('Guild: {0.guild} Channel: {0.channel} From {0.author}: {0.content}'.format(message))
         await self.process_commands(message)
 
     async def blab(self):

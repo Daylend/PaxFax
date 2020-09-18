@@ -38,18 +38,6 @@ class Owner(commands.Cog):
         await ctx.send(f"Added \"{arg2}\" to {arg1}")
 
     @commands.is_owner()
-    @commands.command(aliases=["clear"])
-    async def _clear(self, ctx, *, msg='1'):
-        try:
-            num_msgs = int(msg)
-            if 0 < num_msgs <= 20:
-                msgs = await ctx.channel.history(limit=num_msgs).flatten()
-                await ctx.channel.delete_messages(msgs)
-        except Exception as e:
-            await ctx.send(f"Something went wrong")
-            print(f"Clear exception: {e}")
-
-    @commands.is_owner()
     @commands.command(aliases=["echo"])
     async def _echo(self, ctx, *, msg):
         await ctx.message.delete()
