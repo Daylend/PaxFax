@@ -9,7 +9,7 @@ class Owner(commands.Cog):
         self.bot = bot
 
     @commands.is_owner()
-    @commands.command(aliases=["slowmode"])
+    @commands.command(name="slowmode")
     async def _slowmode(self, ctx):
         self.bot.slowmode = not self.bot.slowmode
         self.bot.blabtask.cancel()
@@ -17,7 +17,7 @@ class Owner(commands.Cog):
         await ctx.send(f"Slowmode {'ON' if self.bot.slowmode else 'OFF'}")
 
     @commands.is_owner()
-    @commands.command(aliases=["reload"])
+    @commands.command(name="reload")
     async def _reload(self, ctx):
         await self.bot.reload_cogs()
         await self.bot.load_blabs()
@@ -25,7 +25,7 @@ class Owner(commands.Cog):
         await ctx.send(f"Reloaded")
 
     @commands.is_owner()
-    @commands.command(aliases=["add"])
+    @commands.command(name="add")
     async def _add(self, ctx, arg1, *, arg2):
         if arg1 == "blab":
             await self.bot.add_blab(arg2)
@@ -38,13 +38,13 @@ class Owner(commands.Cog):
         await ctx.send(f"Added \"{arg2}\" to {arg1}")
 
     @commands.is_owner()
-    @commands.command(aliases=["echo"])
+    @commands.command(name="echo")
     async def _echo(self, ctx, *, msg):
         await ctx.message.delete()
         await ctx.send(msg)
 
     @commands.is_owner()
-    @commands.command(aliases=["mock"])
+    @commands.command(name="mock")
     async def _mock(self, ctx, member: discord.Member, *, msg):
         await ctx.message.delete()
         avatar = await member.avatar_url_as(size=128, format=None, static_format="png").read()

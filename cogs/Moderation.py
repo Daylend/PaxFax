@@ -7,7 +7,7 @@ class Moderation(commands.Cog):
         self.bot = bot
 
     @commands.has_permissions(administrator=True)
-    @commands.command(aliases=["clear"])
+    @commands.command(name="clear")
     async def _clear(self, ctx, *, msg='1'):
         try:
             num_msgs = int(msg)

@@ -23,6 +23,7 @@ class Apocalypse(commands.Cog):
     no_emote = "XNeon"
     emotedict = {yes_emote: "Yes'd Up", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
 
+    # Can't use self without runtime error?
     def is_in_apocalypse():
         async def predicate(ctx):
             return ctx.guild and ctx.guild.id == 688826072187404290
@@ -235,8 +236,8 @@ class Apocalypse(commands.Cog):
             # There shouldn't be more than 10 msgs. Just in case. :)
             await announcement_ch.purge(limit=10)
             await announcement_ch.set_permissions(newrole, read_messages=True)
-            #await announcement_ch.send(f"{newrole.mention} {msg}")
-            await announcement_ch.send(f"fake mention {newrole.name} {msg}")
+            await announcement_ch.send(f"{newrole.mention} {msg}")
+            #await announcement_ch.send(f"fake mention {newrole.name} {msg}")
 
     @is_in_apocalypse()
     @commands.has_permissions(administrator=True)
