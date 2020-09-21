@@ -209,6 +209,7 @@ class Apocalypse(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.command(name='announce')
     async def _announce(self, ctx, day, *, msg):
+        tempmsg = await ctx.send("Working... Please wait around 60 seconds.")
         day = day.lower()
 
         announcement_ch = await self.bot.fetch_channel(self.announcement_chid)
@@ -218,7 +219,6 @@ class Apocalypse(commands.Cog):
             if role.name.startswith(self.role_prefix):
                 # Make sure we're not deleting something important
                 if role.permissions.administrator is not True:
-                    #await ctx.send(f"Pretending to delete role {role.name}")
                     await role.delete(reason="New announcement")
 
         newrole = await ctx.guild.create_role(name=self.role_prefix + day, reason="New announcement")
@@ -233,11 +233,22 @@ class Apocalypse(commands.Cog):
             for member in reactusers:
                 await member.add_roles(newrole, reason="New announcement")
 
-            # There shouldn't be more than 10 msgs. Just in case. :)
-            await announcement_ch.purge(limit=10)
-            await announcement_ch.set_permissions(newrole, read_messages=True)
+            # There shouldn't be more than 20 msgs. Just in case. :)
+            await announcement_ch.purge(limit=20)
+            await announcement_ch.set_permissions(newrole, read_messages=True, read_message_history=True)
             await announcement_ch.send(f"{newrole.mention} {msg}")
-            #await announcement_ch.send(f"fake mention {newrole.name} {msg}")
+            #await announcement_ch.send(f"TEST: {newrole.name} {msg}")
+        await tempmsg.delete()
+
+    @_announce.error
+    async def _announce_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("Syntax error in command. Syntax: ```.announce <day> <message>```\n"
+                           "Example: ```.announce tuesday Hey guys war is on val1 today```")
+        elif isinstance(error, commands.CommandOnCooldown):
+            pass
+        else:
+            await ctx.send("Something went wrong. Unable to announce. :(")
 
     @is_in_apocalypse()
     @commands.has_permissions(administrator=True)
@@ -302,7 +313,7 @@ class Apocalypse(commands.Cog):
                                                                                reason="New announcement")
                             await user.add_roles(newrole, reason="Announcement role")
                             announcement_ch = await self.bot.fetch_channel(self.announcement_chid)
-                            await announcement_ch.set_permissions(newrole, read_messages=True)
+                            await announcement_ch.set_permissions(newrole, read_messages=True, read_message_history=True)
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
