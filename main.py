@@ -80,23 +80,23 @@ class PaxFax(commands.AutoShardedBot):
             print(f"Blabbed: {blab}")
 
     async def load_blabs(self):
-        with open(blabs_file) as f:
+        with open(blabs_file, encoding="utf-8") as f:
             self.blabs = f.read().splitlines()
 
     async def load_angrystuff(self):
-        with open(angrystuff_file) as f:
+        with open(angrystuff_file, encoding="utf-8") as f:
             self.angrystuff = f.read().splitlines()
 
     async def add_blab(self, message):
-        with open(blabs_file, "a") as f:
+        with open(blabs_file, "a", encoding="utf-8") as f:
             f.write("\n" + message)
 
     async def add_angrystuff(self, message):
-        with open(angrystuff_file, "a") as f:
+        with open(angrystuff_file, "a", encoding="utf-8") as f:
             f.write("\n" + message)
 
     async def add_suggestion(self, message):
-        with open(suggestion_file, "a") as f:
+        with open(suggestion_file, "a", encoding="utf-8") as f:
             f.write("\n" + message)
 
     async def load_cogs(self):
