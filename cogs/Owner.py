@@ -54,5 +54,11 @@ class Owner(commands.Cog):
         await hook.send(msg, username=member.display_name)
         await hook.delete()
 
+    @commands.is_owner()
+    @commands.command(name="debug")
+    async def _debug(self, ctx):
+        self.bot.debug = not self.bot.debug
+        await ctx.send(f"Debug {self.bot.debug}")
+
 def setup(bot):
     bot.add_cog(Owner(bot))

@@ -250,7 +250,10 @@ class Apocalypse(commands.Cog):
         elif isinstance(error, commands.CommandOnCooldown):
             pass
         else:
-            await ctx.send("Something went wrong. Unable to announce. :(")
+            if self.bot.debug:
+                await ctx.send(error)
+            else:
+                await ctx.send("Something went wrong. Unable to announce. :(")
 
     @is_in_apocalypse()
     @commands.has_permissions(administrator=True)

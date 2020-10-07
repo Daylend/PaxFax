@@ -22,6 +22,7 @@ class PaxFax(commands.AutoShardedBot):
     angrystuff = []
     names = []
     slowmode = True
+    debug = False
     attendance_channelid = 0
 
     def __init__(self):
@@ -43,7 +44,7 @@ class PaxFax(commands.AutoShardedBot):
         while True:
             delay = 0
             if self.slowmode:
-                delay = random.randrange(3600*10,3600*24)
+                delay = random.randrange(3600*15,3600*24)
             else:
                 delay = random.randrange(10*60,30*60)
             print(f"Waiting {delay} before next blab")
@@ -62,7 +63,7 @@ class PaxFax(commands.AutoShardedBot):
 
         if str(client.user) in message.content or str(client.user.id) in message.content:
             # Roll to see if we're saying an angry response
-            if random.randrange(0,3) == 0:
+            if random.randrange(0,10) == 0:
                 await message.channel.send('{} {}'.format(message.author.mention, self.blabs[random.randrange(len(self.blabs))]))
             else:
                 await message.channel.send('{} {}'.format(message.author.mention, self.angrystuff[random.randrange(len(self.angrystuff))]))
