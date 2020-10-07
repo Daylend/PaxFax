@@ -231,7 +231,8 @@ class Apocalypse(commands.Cog):
             reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
 
             for member in reactusers:
-                await member.add_roles(newrole, reason="New announcement")
+                if type(member) is discord.Member:
+                    await member.add_roles(newrole, reason="New announcement")
 
             # There shouldn't be more than 20 msgs. Just in case. :)
             await announcement_ch.purge(limit=20)
@@ -239,16 +240,6 @@ class Apocalypse(commands.Cog):
             await announcement_ch.send(f"{newrole.mention} {msg}")
             #await announcement_ch.send(f"TEST: {newrole.name} {msg}")
         await tempmsg.delete()
-
-    @_announce.error
-    async def _announce_error(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("Syntax error in command. Syntax: ```.announce <day> <message>```\n"
-                           "Example: ```.announce tuesday Hey guys war is on val1 today```")
-        elif isinstance(error, commands.CommandOnCooldown):
-            pass
-        else:
-            await ctx.send("Something went wrong. Unable to announce. :(")
 
     @is_in_apocalypse()
     @commands.has_permissions(administrator=True)
