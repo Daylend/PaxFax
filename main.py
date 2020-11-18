@@ -25,9 +25,8 @@ class PaxFax(commands.AutoShardedBot):
     debug = False
     attendance_channelid = 0
 
-    def __init__(self):
-        super().__init__(command_prefix=prefix, owner_id=masterid, reconnect=True, case_insensitive=True)
-
+    def __init__(self, intents):
+        super().__init__(command_prefix=prefix, owner_id=masterid, reconnect=True, case_insensitive=True, intents=intents)
         self.embed_color = 0x0099FF
 
     async def on_ready(self):
@@ -127,7 +126,9 @@ if __name__ == '__main__':
     handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
     logger.addHandler(handler)
 
-    client = PaxFax()
+    intents = discord.Intents(reactions=True, members=True, messages=True, guilds=True)
+
+    client = PaxFax(intents=intents)
 
     client.names = names
     client.run(get_key())

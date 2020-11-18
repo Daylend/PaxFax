@@ -184,6 +184,7 @@ class Apocalypse(commands.Cog):
             msgs = await ch.history(limit=100).flatten()
             reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
             reactmsg = await self.find_message_with_attachment(msgs, msg)
+            await ctx.guild.chunk()
 
             embed = discord.Embed(
                 color=self.bot.embed_color,
@@ -212,6 +213,7 @@ class Apocalypse(commands.Cog):
     async def _announce(self, ctx, day, *, msg):
         tempmsg = await ctx.send("Working... Please wait around 60 seconds.")
         day = day.lower()
+        await ctx.guild.chunk()
 
         announcement_ch = await self.bot.fetch_channel(self.announcement_chid)
 
@@ -234,12 +236,18 @@ class Apocalypse(commands.Cog):
             for member in reactusers:
                 if type(member) is discord.Member:
                     await member.add_roles(newrole, reason="New announcement")
+                elif type(member) is discord.User:
+                    actualmember = await ctx.guild.get_member(member.id)
+                    if actualmember is not None:
+                        await actualmember.add_roles(newrole, reason="New announcement")
+                    else:
+                        print("Unable to add role to member!")
 
             # There shouldn't be more than 20 msgs. Just in case. :)
             await announcement_ch.purge(limit=20)
             await announcement_ch.set_permissions(newrole, read_messages=True, read_message_history=True)
-            await announcement_ch.send(f"{newrole.mention} {msg}")
-            #await announcement_ch.send(f"TEST: {newrole.name} {msg}")
+            #await announcement_ch.send(f"{newrole.mention} {msg}")
+            await announcement_ch.send(f"TEST: {newrole.name} {msg}")
         await tempmsg.delete()
 
     @_announce.error
