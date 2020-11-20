@@ -15,7 +15,8 @@ class Apocalypse(commands.Cog):
     flex_roleid = 712302975821021194
     role_prefix = "attendance_"
     announcement_chid = 756330674927173693
-    attendance_channelid = 704239533914324992
+    #attendance_channelid = 704239533914324992
+    attendance_channelid = 777731412697940018
     apocalypse_guildid = 688826072187404290
     member_roleid = 688944180298514440
     yes_emote = "CheckmarkNeon"
