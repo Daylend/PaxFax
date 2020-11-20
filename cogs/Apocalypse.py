@@ -15,8 +15,8 @@ class Apocalypse(commands.Cog):
     flex_roleid = 712302975821021194
     role_prefix = "attendance_"
     announcement_chid = 756330674927173693
-    #attendance_channelid = 704239533914324992
-    attendance_channelid = 777731412697940018
+    attendance_channelid = 704239533914324992
+    attendance_channelid2 = 777731412697940018
     apocalypse_guildid = 688826072187404290
     member_roleid = 688944180298514440
     yes_emote = "CheckmarkNeon"
@@ -54,7 +54,7 @@ class Apocalypse(commands.Cog):
         for msg in msgs:
             for reaction in msg.reactions:
                 # Look for emotes we actually care about
-                if reaction.emoji.name in reactemotes:
+                if reaction.custom_emoji and reaction.emoji.name in reactemotes:
                     users = await reaction.users().flatten()
                     # Add them to the nice list
                     for user in users:
@@ -150,6 +150,32 @@ class Apocalypse(commands.Cog):
                         await member.move_to(vc2)
                 else:
                     await ctx.send("Can't clone current channel as it has invites")"""
+
+    @is_in_apocalypse()
+    @commands.command(name='remind2')
+    async def _remind2(self, ctx, *, msg):
+        # Get a list of all members with the "member" role
+        members = await self.get_members_with_role(ctx, self.member_roleid)
+        await ctx.guild.chunk()
+        ch = await self.bot.fetch_channel(self.attendance_channelid2)
+        msgs = await ch.history(limit=100).flatten()
+        reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
+        reactmsg = await self.find_message_with_attachment(msgs, msg)
+        reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
+
+
+        for user in reactusers:
+            if user in members:
+                members.remove(user)
+
+        embed = discord.Embed(
+            color=self.bot.embed_color,
+            title=f"Attendance Report: {msg} ({len(members)})",
+            description=f"Current list of members who have not reacted to attendance for {msg}."
+                        f" {len(members)} have not signed up."
+        )
+
+        await self.print_users(ctx, embed, members)
 
     @is_in_apocalypse()
     @commands.command(name='remind')
