@@ -246,8 +246,8 @@ class Apocalypse(commands.Cog):
             # There shouldn't be more than 20 msgs. Just in case. :)
             await announcement_ch.purge(limit=20)
             await announcement_ch.set_permissions(newrole, read_messages=True, read_message_history=True)
-            #await announcement_ch.send(f"{newrole.mention} {msg}")
-            await announcement_ch.send(f"TEST: {newrole.name} {msg}")
+            await announcement_ch.send(f"{newrole.mention} {msg}")
+            #await announcement_ch.send(f"TEST: {newrole.name} {msg}")
         await tempmsg.delete()
 
     @_announce.error
