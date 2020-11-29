@@ -43,7 +43,7 @@ class PaxFax(commands.AutoShardedBot):
         while True:
             delay = 0
             if self.slowmode:
-                delay = random.randrange(3600*15,3600*24)
+                delay = random.randrange(3600*24,3600*48)
             else:
                 delay = random.randrange(10*60,30*60)
             print(f"Waiting {delay} before next blab")
