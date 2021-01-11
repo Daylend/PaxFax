@@ -20,9 +20,10 @@ class Apocalypse(commands.Cog):
     apocalypse_guildid = 688826072187404290
     member_roleid = 688944180298514440
     yes_emote = "CheckmarkNeon"
+    sit_emote = "peeposhrug"
     maybe_emote = "Neon_Maybe"
     no_emote = "XNeon"
-    emotedict = {yes_emote: "Yes'd Up", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
+    emotedict = {yes_emote: "Yes'd Up", sit_emote: "Sitters", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
 
     # Can't use self without runtime error?
     def is_in_apocalypse():
@@ -159,7 +160,7 @@ class Apocalypse(commands.Cog):
         await ctx.guild.chunk()
         ch = await self.bot.fetch_channel(self.attendance_channelid2)
         msgs = await ch.history(limit=100).flatten()
-        reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
+        reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
         reactmsg = await self.find_message_with_attachment(msgs, msg)
         reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
 
@@ -186,7 +187,7 @@ class Apocalypse(commands.Cog):
         # Get all msgs in attendance ch
         ch = await self.bot.fetch_channel(self.attendance_channelid)
         msgs = await ch.history(limit=100).flatten()
-        reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
+        reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
         reactusers = await self.find_members_with_reacts(msgs, reactemotes)
 
         # Remove members that have already reacted
@@ -209,7 +210,7 @@ class Apocalypse(commands.Cog):
         async with ctx.channel.typing():
             ch = await self.bot.fetch_channel(self.attendance_channelid)
             msgs = await ch.history(limit=100).flatten()
-            reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
+            reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
             reactmsg = await self.find_message_with_attachment(msgs, msg)
             await ctx.guild.chunk()
 
@@ -255,7 +256,7 @@ class Apocalypse(commands.Cog):
 
         ch = await self.bot.fetch_channel(self.attendance_channelid)
         msgs = await ch.history(limit=100).flatten()
-        reactemotes = [self.yes_emote, self.maybe_emote]
+        reactemotes = [self.yes_emote, self.maybe_emote, self.sit_emote]
         reactmsg = await self.find_message_with_attachment(msgs, day)
         if reactmsg is not None:
             reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
@@ -300,7 +301,7 @@ class Apocalypse(commands.Cog):
         # Get all msgs in attendance ch
         ch = await self.bot.fetch_channel(self.attendance_channelid)
         msgs = await ch.history(limit=100).flatten()
-        reactemotes = [self.yes_emote, self.maybe_emote, self.no_emote]
+        reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
         reactusers = await self.find_members_with_reacts(msgs, reactemotes)
 
         # Remove members that have already reacted
