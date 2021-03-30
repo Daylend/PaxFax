@@ -19,7 +19,7 @@ class Apocalypse(commands.Cog):
     attendance_channelid2 = 782357585143267329
     apocalypse_guildid = 688826072187404290
     member_roleid = 688944180298514440
-    yes_emote = "CheckmarkNeon"
+    yes_emote = "check"
     sit_emote = "peeposhrug"
     maybe_emote = "Neon_Maybe"
     no_emote = "XNeon"
