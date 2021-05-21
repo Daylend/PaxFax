@@ -1,5 +1,10 @@
 import discord
 from discord.ext import commands
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+import os.path
 
 class Apocalypse(commands.Cog):
 
@@ -24,6 +29,12 @@ class Apocalypse(commands.Cog):
     maybe_emote = "Neon_Maybe"
     no_emote = "XNeon"
     emotedict = {yes_emote: "Yes'd Up", sit_emote: "Sitters", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
+
+    # Sheets stuff
+    sheet_scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+    sheet_id = '1yMJP7vPklxtXj1N8xLtvPywLb4uS6GOul_luNtIcpTA'
+    sheet_range = 'Gearscores!B5:K205'
+    sheet_creds = None
 
     # Can't use self without runtime error?
     def is_in_apocalypse():
@@ -102,6 +113,81 @@ class Apocalypse(commands.Cog):
                 if role.permissions.administrator is not True:
                     return role
         return None
+
+    async def get_values_from_sheet(self):
+        token_path = "token.json"
+        cred_path = "credentials.json"
+
+        if os.path.exists(token_path):
+            self.sheet_creds = Credentials.from_authorized_user_file(token_path, self.sheet_scopes)
+        if not self.sheet_creds or not self.sheet_creds.valid:
+            if self.sheet_creds and self.sheet_creds.expired and self.sheet_creds.refresh_token:
+                self.sheet_creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    cred_path, self.sheet_scopes)
+                creds = flow.run_local_server(port=0)
+            # Save the credentials for the next run
+            with open(token_path, 'w') as token:
+                token.write(self.sheet_creds.to_json())
+
+        service = build('sheets', 'v4', credentials=self.sheet_creds)
+        sheet = service.spreadsheets()
+        result = sheet.values().get(spreadsheetId=self.sheet_id, range=self.sheet_range).execute()
+        values = result.get('values', [])
+        return values
+
+    @is_in_apocalypse()
+    @commands.has_permissions(administrator=True)
+    @commands.command(name="validate")
+    async def _validate(self, ctx):
+        notvalid = ""
+        values = await self.get_values_from_sheet()
+        await ctx.guild.chunk()
+        members = await ctx.guild.fetch_members().flatten()
+
+        for row in values:
+            if row:
+                if next((member for member in members if str(member).lower() == row[0].lower()), None) is None:
+                    notvalid += f"{str(row[0])}\n"
+
+
+        await ctx.send(notvalid)
+
+    @is_in_apocalypse()
+    @commands.command(name="gs")
+    async def _gs(self, ctx, *, day):
+        gs_sum = 0
+        players = 0
+
+        values = await self.get_values_from_sheet()
+
+        if values:
+            await ctx.guild.chunk()
+            ch = await self.bot.fetch_channel(self.attendance_channelid)
+            msgs = await ch.history(limit=100).flatten()
+            reactemotes = [self.yes_emote, self.maybe_emote, self.sit_emote]
+            reactmsg = await self.find_message_with_attachment(msgs, day)
+            if reactmsg is not None:
+                reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
+
+                for member in reactusers:
+                    for row in values:
+                        if row and str(member).lower() == row[0].lower():
+                            if row[4] != "Special Teams":
+                                gs_sum += int(row[9])
+                                players += 1
+                            break
+        gs_avg = gs_sum / players
+        embed = discord.Embed(
+            color=self.bot.embed_color,
+            title=f"Gearscore Average for {day}:",
+            description=f"GS Average: {round(gs_avg, 1)}\n"
+                        f"Players counted: {players}"
+        )
+        #await ctx.send(f"Gearscore average for {day}: {round(gs_avg, 1)} ({players} players counted)")
+        await ctx.send(embed=embed)
+
 
     @is_in_apocalypse()
     @commands.has_permissions(administrator=True)
