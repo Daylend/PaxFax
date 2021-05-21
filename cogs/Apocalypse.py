@@ -155,6 +155,7 @@ class Apocalypse(commands.Cog):
         await ctx.send(notvalid)
 
     @is_in_apocalypse()
+    @commands.has_permissions(administrator=True)
     @commands.command(name="gs")
     async def _gs(self, ctx, *, day):
         gs_sum = 0
