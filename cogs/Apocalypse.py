@@ -5,6 +5,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 import os.path
+import predicates
 
 class Apocalypse(commands.Cog):
 
@@ -35,12 +36,6 @@ class Apocalypse(commands.Cog):
     sheet_id = '1yMJP7vPklxtXj1N8xLtvPywLb4uS6GOul_luNtIcpTA'
     sheet_range = 'Gearscores!B5:K205'
     sheet_creds = None
-
-    # Can't use self without runtime error?
-    def is_in_apocalypse():
-        async def predicate(ctx):
-            return ctx.guild and ctx.guild.id == 688826072187404290
-        return commands.check(predicate)
 
     async def move_category_to_vc(self, vcc, vc, exclude_names=None):
         # Move everyone in normal voice category to prepost
@@ -137,8 +132,8 @@ class Apocalypse(commands.Cog):
         values = result.get('values', [])
         return values
 
-    @is_in_apocalypse()
-    @commands.has_permissions(administrator=True)
+    @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name="validate")
     async def _validate(self, ctx):
         notvalid = ""
@@ -154,8 +149,8 @@ class Apocalypse(commands.Cog):
 
         await ctx.send(notvalid)
 
-    @is_in_apocalypse()
-    @commands.has_permissions(administrator=True)
+    @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name="gs")
     async def _gs(self, ctx, *, day):
         gs_sum = 0
@@ -190,8 +185,8 @@ class Apocalypse(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @is_in_apocalypse()
-    @commands.has_permissions(administrator=True)
+    @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name="move")
     async def _move(self, ctx, *, msg):
         # Moves everyone from normal voice channels to pre/post
@@ -239,7 +234,7 @@ class Apocalypse(commands.Cog):
                 else:
                     await ctx.send("Can't clone current channel as it has invites")"""
 
-    @is_in_apocalypse()
+    @predicates.is_in_apocalypse()
     @commands.command(name='remind2')
     async def _remind2(self, ctx, *, msg):
         # Get a list of all members with the "member" role
@@ -265,7 +260,7 @@ class Apocalypse(commands.Cog):
 
         await self.print_users(ctx, embed, members)
 
-    @is_in_apocalypse()
+    @predicates.is_in_apocalypse()
     @commands.command(name='remind')
     async def _remind(self, ctx):
         # Get a list of all members with the "member" role
@@ -291,7 +286,7 @@ class Apocalypse(commands.Cog):
 
         await self.print_users(ctx, embed, members)
 
-    @is_in_apocalypse()
+    @predicates.is_in_apocalypse()
     @commands.command(name='attendance')
     async def _attendance(self, ctx, *, msg):
         async with ctx.channel.typing():
@@ -322,8 +317,8 @@ class Apocalypse(commands.Cog):
                 await self.print_users(ctx, embed, reactusers)
 
 
-    @is_in_apocalypse()
-    @commands.has_permissions(administrator=True)
+    @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name='announce')
     async def _announce(self, ctx, day, *, msg):
         tempmsg = await ctx.send("Working... Please wait around 60 seconds.")
@@ -378,8 +373,8 @@ class Apocalypse(commands.Cog):
             else:
                 await ctx.send("Something went wrong. Unable to announce. :(")
 
-    @is_in_apocalypse()
-    @commands.has_permissions(administrator=True)
+    @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name='notify')
     async def _notify(self, ctx):
         # Get a list of all members with the "member" role
