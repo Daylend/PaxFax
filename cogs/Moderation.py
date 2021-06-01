@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
+import predicates
 
 class Moderation(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.has_permissions(administrator=True)
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name="clear")
     async def _clear(self, ctx, *, msg='1'):
         try:
@@ -17,6 +18,14 @@ class Moderation(commands.Cog):
         except Exception as e:
             await ctx.send(f"Something went wrong")
             print(f"Clear exception: {e}")
+
+    @predicates.has_perms_or_owner(administrator=True)
+    @commands.command(name="cnick")
+    async def _cnick(self, ctx, *, nick):
+        ch = ctx.author.voice.channel
+        if ch:
+            await ch.edit(name=nick)
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
