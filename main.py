@@ -10,7 +10,7 @@ guildid = 688826072187404290
 blab_channelid = 689766528224460820
 names = ["Daylend", "everyone", "nobody", "Brizz", "Nemo", "Snu", "Jay", "Panda", "Golddog", "Raiyun", "Spacefrog",
          "Zeropa", "Caldra", "Jael", "Seki", "Zen"]
-cogs = ["Fun", "Owner", "Information", "Moderation", "Apocalypse"]
+cogs = ["Fun", "Owner", "Information", "Moderation", "Apocalypse", "Voice"]
 angrystuff_file = "paxfax_toxic.txt"
 blabs_file = "paxfax.txt"
 suggestion_file = "paxfax_suggestions.txt"
@@ -125,8 +125,11 @@ if __name__ == '__main__':
     handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
     handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
     logger.addHandler(handler)
-
-    intents = discord.Intents(reactions=True, members=True, messages=True, guilds=True)
+    intents = discord.Intents.default()
+    intents.members = True
+    intents.reactions = True
+    intents.guilds = True
+    intents.messages = True
 
     client = PaxFax(intents=intents)
 

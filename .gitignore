@@ -4,3 +4,5 @@ venv/
 *.txt
 *.pyc
 *.json
+*.mp3
+*.bak
