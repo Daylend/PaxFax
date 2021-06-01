@@ -1,8 +1,9 @@
 venv/
 .idea/
 *.log
-*.txt
 *.pyc
 *.json
 *.mp3
 *.bak
+key.txt
+paxfax*.txt
