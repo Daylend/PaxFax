@@ -124,7 +124,7 @@ class Fun(commands.Cog):
                    "Sage",
                    "Corsair"]
         message = f"Congratulations, you are now a {random.choice(classes)}."
-        await ctx.send(message=message)
+        await ctx.send(message)
 
 def setup(bot):
     bot.add_cog(Fun(bot))
