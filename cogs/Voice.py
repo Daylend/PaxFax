@@ -50,7 +50,9 @@ class Voice(commands.Cog):
             ffpath = "C:\\Program Files (x86)\\FFmpeg for Audacity\\ffmpeg.exe"
 
             path = self.fxpath + msg + self.ext
-            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path, executable=ffpath), volume=0.75)
+            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path), volume=0.75)
+            # Local version
+            # source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path, executable=ffpath), volume=0.75)
             ctx.voice_client.play(source)
 
     @commands.command(name="say")
@@ -63,7 +65,9 @@ class Voice(commands.Cog):
             path = self.fxpath + 'tts' + self.ext
             tts.save(path)
             ffpath = "C:\\Program Files (x86)\\FFmpeg for Audacity\\ffmpeg.exe"
-            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path, executable=ffpath), volume=0.75)
+            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path), volume=0.75)
+            # Local version
+            # source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path, executable=ffpath), volume=0.75)
             ctx.voice_client.play(source)
 
 def setup(bot):
