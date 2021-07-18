@@ -98,5 +98,33 @@ class Fun(commands.Cog):
                             value="• Please put in a valid option! Example: `l!8ball <question>`")
             await ctx.send(embed=embed)
 
+    @commands.command(name="reroll")
+    async def _reroll(self, ctx):
+        classes = ["Berserker",
+                   "Archer",
+                   "Sorcerer",
+                   "Tamer",
+                   "Valkyrie",
+                   "Warrior",
+                   "Wizard",
+                   "Witch",
+                   "Musa",
+                   "Maewha",
+                   "Ninja",
+                   "Kunoichi",
+                   "Dark Knight",
+                   "Striker",
+                   "Mystic",
+                   "Lahn",
+                   "Ranger",
+                   "Shai",
+                   "Guardian",
+                   "Hashashin",
+                   "Nova",
+                   "Sage",
+                   "Corsair"]
+        message = f"Congratulations, you are now a {random.choice(classes)}."
+        await ctx.send(message=message)
+
 def setup(bot):
     bot.add_cog(Fun(bot))
