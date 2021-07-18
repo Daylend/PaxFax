@@ -123,7 +123,7 @@ class Fun(commands.Cog):
                    "Nova",
                    "Sage",
                    "Corsair"]
-        message = f"Congratulations, you are now a {random.choice(classes)}."
+        message = f"Congratulations {ctx.message.author.mention}, you are now a {random.choice(classes)}."
         await ctx.send(message)
 
 def setup(bot):
