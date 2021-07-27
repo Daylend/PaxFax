@@ -13,7 +13,7 @@ class Moderation(commands.Cog):
         try:
             num_msgs = int(msg)
             if 0 < num_msgs <= 20:
-                msgs = await ctx.channel.history(limit=num_msgs).flatten()
+                msgs = await ctx.channel.history(limit=num_msgs+1).flatten()
                 await ctx.channel.delete_messages(msgs)
         except Exception as e:
             await ctx.send(f"Something went wrong")

@@ -6,6 +6,8 @@ from discord.ext import commands
 from discord.ext.commands import is_owner, has_permissions
 from discord.utils import get
 from gtts import gTTS
+from os import listdir
+from os.path import isfile, join
 
 class Voice(commands.Cog):
 
@@ -19,8 +21,18 @@ class Voice(commands.Cog):
         async def predicate(ctx):
             mute_role = ctx.guild.get_role(811148263935180811)
             has_mute = mute_role in ctx.author.roles
-            has_perms = is_owner() or has_permissions(administrator=True)
-            return has_mute or has_perms
+            isowner = False
+            hasperms = False
+            try:
+                isowner = await is_owner().predicate(ctx)
+            except:
+                pass
+            
+            try:
+                hasperms = await has_permissions(administrator=True).predicate(ctx)
+            except:
+                pass
+            return has_mute or isowner or hasperms
         return commands.check(predicate)
 
     def is_connected(self, ctx):
@@ -44,6 +56,10 @@ class Voice(commands.Cog):
     @commands.command(name="sb")
     @can_speak()
     async def _sb(self, ctx, *, msg):
+        if (msg == "?"):
+            files = [f for f in listdir(self.fxpath) if isfile(join(self.fxpath, f))]
+            await ctx.send(str(files))
+            return
         if not ctx.voice_client:
             await self._join(ctx)
         if ctx.voice_client:

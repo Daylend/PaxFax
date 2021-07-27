@@ -2,11 +2,18 @@ import discord
 from discord.ext import commands
 import aiohttp
 import random
+import json
 
 class Fun(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.quotes = {}
+        try:
+            with open("quotes.json", "r") as f:
+                self.quotes = json.loads(f.read())
+        except:
+            pass
 
     @commands.command(name='ping')
     async def _ping(self, ctx):
@@ -100,6 +107,9 @@ class Fun(commands.Cog):
 
     @commands.command(name="reroll")
     async def _reroll(self, ctx):
+        if random.random() > 0.98:
+            await ctx.send(f"{ctx.message.author.mention} there's nothing wrong with your class, you're just shit at playing it.")
+            return
         classes = ["Berserker",
                    "Archer",
                    "Sorcerer",
@@ -125,6 +135,35 @@ class Fun(commands.Cog):
                    "Corsair"]
         message = f"Congratulations {ctx.message.author.mention}, you are now a {random.choice(classes)}."
         await ctx.send(message)
+
+    def addquote(self, quote, msg):
+        self.quotes[quote] = msg
+        with open("quotes.json", "w") as f:
+            f.write(json.dumps(self.quotes))
+
+    def prettyList(self, listarg):
+        prettylist = "Commands:\n```"
+        for i in listarg:
+            prettylist += f'{i}\n'
+        prettylist += "```"
+        return prettylist
+
+    @commands.command(name="..")
+    async def _quote(self, ctx, quote=None, *, msg=None):
+        if quote:
+            if msg:
+                self.addquote(quote, msg)
+                await ctx.message.add_reaction('\N{THUMBS UP SIGN}')
+            else:
+                if quote == "?":
+                    await ctx.send(self.prettyList(list(self.quotes.keys())))
+                elif quote in self.quotes:
+                    qtext = self.quotes[quote]
+                    if qtext:
+                        await ctx.send(qtext)
+        else:
+            await ctx.send('Usage:\n```"... [command]" to see a command\n"... [command] [text]" to set a command\n"... ?" for a list of commands```')
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
