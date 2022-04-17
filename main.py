@@ -8,7 +8,7 @@ master = "Daylend#0001"
 masterid = 113156025984520192
 guildid = 688826072187404290
 blab_channelid = 689766528224460820
-names = ["Daylend", "everyone", "nobody", "Brizz", "Nemo", "Snu", "Jay", "Panda", "Golddog", "Raiyun", "Spacefrog",
+names = ["Daylend", "everyone", "nobody", "Brizz", "Nemo", "Snu", "Jay", "Panda", "Multi", "Raiyun", "Frosty",
          "Zeropa", "Caldra", "Jael", "Seki", "Zen"]
 cogs = ["Fun", "Owner", "Information", "Moderation", "Apocalypse", "Voice"]
 angrystuff_file = "paxfax_toxic.txt"
@@ -43,9 +43,9 @@ class PaxFax(commands.AutoShardedBot):
         while True:
             delay = 0
             if self.slowmode:
-                delay = random.randrange(3600*24,3600*48)
+                delay = random.randrange(3600*96,3600*128)
             else:
-                delay = random.randrange(10*60,30*60)
+                delay = random.randrange(3600*48,3600*96)
             print(f"Waiting {delay} before next blab")
             await asyncio.sleep(delay)
             await self.blab()

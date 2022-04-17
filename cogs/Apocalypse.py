@@ -26,10 +26,10 @@ class Apocalypse(commands.Cog):
     apocalypse_guildid = 688826072187404290
     member_roleid = 688944180298514440
     yes_emote = "check"
-    sit_emote = "peeposhrug"
-    maybe_emote = "Neon_Maybe"
-    no_emote = "XNeon"
-    emotedict = {yes_emote: "Yes'd Up", sit_emote: "Sitters", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
+    sit_emote = "cannon"
+    maybe_emote = "Maybe"
+    no_emote = "Absent"
+    emotedict = {yes_emote: "Yes'd Up", sit_emote: "Cannon", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
 
     # Sheets stuff
     sheet_scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
@@ -347,7 +347,7 @@ class Apocalypse(commands.Cog):
                 if type(member) is discord.Member:
                     await member.add_roles(newrole, reason="New announcement")
                 elif type(member) is discord.User:
-                    actualmember = await ctx.guild.get_member(member.id)
+                    actualmember = ctx.guild.get_member(member.id)
                     if actualmember is not None:
                         await actualmember.add_roles(newrole, reason="New announcement")
                     else:
@@ -370,6 +370,7 @@ class Apocalypse(commands.Cog):
         else:
             if self.bot.debug:
                 await ctx.send(error)
+                print(error)
             else:
                 await ctx.send("Something went wrong. Unable to announce. :(")
 

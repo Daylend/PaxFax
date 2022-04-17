@@ -155,14 +155,15 @@ class Fun(commands.Cog):
                 self.addquote(quote, msg)
                 await ctx.message.add_reaction('\N{THUMBS UP SIGN}')
             else:
-                if quote == "?":
-                    await ctx.send(self.prettyList(list(self.quotes.keys())))
+                if quote == "?" or quote == "help":
+                    ch = await ctx.message.author.create_dm()
+                    await ch.send(self.prettyList(list(self.quotes.keys())))
                 elif quote in self.quotes:
                     qtext = self.quotes[quote]
                     if qtext:
                         await ctx.send(qtext)
         else:
-            await ctx.send('Usage:\n```"... [command]" to see a command\n"... [command] [text]" to set a command\n"... ?" for a list of commands```')
+            msg = await ctx.send('Usage:\n```"... [command]" to see a command\n"... [command] [text]" to set a command\n"... ?" for a list of commands```', delete_after=30)
 
 
 def setup(bot):

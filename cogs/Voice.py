@@ -1,6 +1,6 @@
 import asyncio
 from io import BytesIO
-
+import json
 import discord
 from discord.ext import commands
 from discord.ext.commands import is_owner, has_permissions
@@ -16,6 +16,8 @@ class Voice(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.accent = {}
+        self.load_accents()
 
     def can_speak():
         async def predicate(ctx):
@@ -38,6 +40,20 @@ class Voice(commands.Cog):
     def is_connected(self, ctx):
         voice_client = get(ctx.bot.voice_clients, guild=ctx.guild)
         return voice_client and voice_client.is_connected()
+
+    def load_accents(self):
+        try:
+            with open("accent.json", "r") as f:
+                self.accent = json.loads(f.read())
+        except:
+            self.accent = {}
+
+    def save_accents(self):
+        try:
+            with open("accent.json", "w") as f:
+                f.write(json.dumps(self.accent))
+        except:
+            pass
 
     @commands.command(name="join")
     @commands.is_owner()
@@ -77,7 +93,11 @@ class Voice(commands.Cog):
         if not ctx.voice_client:
             await self._join(ctx)
         if ctx.voice_client:
-            tts = gTTS(msg, lang='en', tld='ca')
+            accent = 'ca'
+            if ctx.message.author.id in self.accent:
+                accent = self.accent[ctx.message.author.id]
+
+            tts = gTTS(msg, lang='en', tld=accent)
             path = self.fxpath + 'tts' + self.ext
             tts.save(path)
             ffpath = "C:\\Program Files (x86)\\FFmpeg for Audacity\\ffmpeg.exe"
@@ -85,6 +105,22 @@ class Voice(commands.Cog):
             # Local version
             # source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path, executable=ffpath), volume=0.75)
             ctx.voice_client.play(source)
+
+    @commands.command(name="accent")
+    @can_speak()
+    async def _accent(self, ctx, *, msg):
+        accents = {
+                'aus': 'com.au',
+                'uk': 'co.uk',
+                'us': 'ca',
+                'india': 'co.in'
+            }
+        
+        if msg in accents: 
+            self.accent[ctx.message.author.id] = accents[msg]
+            await ctx.send(f'Your accent has been set to "{msg}"')
+            self.save_accents()
+        else: await ctx.send(accents.keys())
 
 def setup(bot):
     bot.add_cog(Voice(bot))

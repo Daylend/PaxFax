@@ -26,6 +26,14 @@ class Moderation(commands.Cog):
         if ch:
             await ch.edit(name=nick)
 
+    @commands.is_owner()
+    @commands.command(name="roles")
+    async def _roles(self, ctx):
+        roles = await ctx.guild.fetch_roles()
+        rolestr = map(lambda x: f"{x.position}: {x.name}", roles)
+        ch = await ctx.message.author.create_dm()
+        await ch.send(sorted(rolestr))
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
