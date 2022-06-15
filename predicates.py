@@ -11,6 +11,8 @@ def is_in_apocalypse():
 # Makes exceptions for owner of bot
 def has_perms_or_owner(**perms):
     async def predicate(ctx):
-        return is_owner() or has_permissions(**perms)
+        owner = await is_owner().predicate(ctx)
+        has_perms = await has_permissions(**perms).predicate(ctx)
+        return owner or has_perms
 
     return commands.check(predicate)

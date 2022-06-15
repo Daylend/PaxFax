@@ -235,6 +235,7 @@ class Apocalypse(commands.Cog):
                     await ctx.send("Can't clone current channel as it has invites")"""
 
     @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name='remind2')
     async def _remind2(self, ctx, *, msg):
         # Get a list of all members with the "member" role
@@ -261,6 +262,7 @@ class Apocalypse(commands.Cog):
         await self.print_users(ctx, embed, members)
 
     @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name='remind')
     async def _remind(self, ctx):
         # Get a list of all members with the "member" role
@@ -287,6 +289,7 @@ class Apocalypse(commands.Cog):
         await self.print_users(ctx, embed, members)
 
     @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name='attendance')
     async def _attendance(self, ctx, *, msg):
         async with ctx.channel.typing():

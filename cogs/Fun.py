@@ -151,6 +151,7 @@ class Fun(commands.Cog):
     @commands.command(name="..")
     async def _quote(self, ctx, quote=None, *, msg=None):
         if quote:
+            quote = quote.lower()
             if msg:
                 self.addquote(quote, msg)
                 await ctx.message.add_reaction('\N{THUMBS UP SIGN}')
