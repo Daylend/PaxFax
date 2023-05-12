@@ -1,7 +1,5 @@
 import discord
 from discord.ext import commands
-import aiohttp
-from discord import Webhook, AsyncWebhookAdapter
 
 class Owner(commands.Cog):
 
@@ -67,5 +65,5 @@ class Owner(commands.Cog):
         await ctx.guild.create_role(name="Dev", reason="Dev role", permissions=perms)
         await ctx.message.delete()
 
-def setup(bot):
-    bot.add_cog(Owner(bot))
+async def setup(bot):
+    await bot.add_cog(Owner(bot))

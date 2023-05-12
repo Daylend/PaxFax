@@ -10,5 +10,5 @@ class Information(commands.Cog):
     async def _about(self, ctx):
         await ctx.send(f"Made by {await self.bot.fetch_user(self.bot.owner_id)}, send me a pm for any issues/suggestions.")
 
-def setup(bot):
-    bot.add_cog(Information(bot))
+async def setup(bot):
+    await bot.add_cog(Information(bot))

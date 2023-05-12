@@ -5,9 +5,9 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import is_owner, has_permissions
 from discord.utils import get
-from gtts import gTTS
-from os import listdir
+from os import listdir, getenv
 from os.path import isfile, join
+from elevenlabs import generate, save, Voices
 
 class Voice(commands.Cog):
 
@@ -88,39 +88,74 @@ class Voice(commands.Cog):
             ctx.voice_client.play(source)
 
     @commands.command(name="say")
-    @can_speak()
+    @commands.cooldown(3, 60, commands.BucketType.user)
+    @commands.is_owner()
+    # @can_speak()
     async def _say(self, ctx, *, msg):
+        path = self.fxpath + 'tts' + self.ext
+
+        if len(msg) > 100:
+            await ctx.send(f'Message too long. (limit 100)')
+            return
+
         if not ctx.voice_client:
             await self._join(ctx)
         if ctx.voice_client:
-            accent = 'ca'
+            accent = getenv('PAX_VOICE_ID') # default
             if ctx.message.author.id in self.accent:
                 accent = self.accent[ctx.message.author.id]
 
-            tts = gTTS(msg, lang='en', tld=accent)
-            path = self.fxpath + 'tts' + self.ext
-            tts.save(path)
-            ffpath = "C:\\Program Files (x86)\\FFmpeg for Audacity\\ffmpeg.exe"
-            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path), volume=0.75)
-            # Local version
-            # source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path, executable=ffpath), volume=0.75)
+            voices = Voices.from_api()
+            print(voices)
+            voices[1].settings.stability = 0.1
+
+            audio = generate(
+                text=msg,
+                voice=accent,
+                model="eleven_monolingual_v1",
+                api_key=getenv("ELEVEN_API_KEY")
+            )
+
+            save(audio, filename=path)
+            source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(path), volume=0.65)
             ctx.voice_client.play(source)
+
+    @_say.error
+    async def _announce_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            ctx.send(f'That command is on cooldown.')
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.send("You do not have the required permissions to use this command.")
+        else:
+            if self.bot.debug:
+                await ctx.send(error)
+                print(error)
+            else:
+                await ctx.send("Something went wrong.")
+                print(error)
 
     @commands.command(name="accent")
     @can_speak()
     async def _accent(self, ctx, *, msg):
         accents = {
-                'aus': 'com.au',
-                'uk': 'co.uk',
-                'us': 'ca',
-                'india': 'co.in'
+                'adam': 'Adam',
+                'antoni': 'Antoni',
+                'arnold': 'Arnold',
+                'bella': 'Bella',
+                'domi': 'Domi',
+                'elli': 'Elli',
+                'josh': 'Josh',
+                'rachel': 'Rachel',
+                'sam': 'Sam',
+                'pax': getenv('PAX_VOICE_ID'),
+                'robot': getenv('ROBOT_VOICE_ID')
             }
-        
+        msg = msg.lower()
         if msg in accents: 
             self.accent[ctx.message.author.id] = accents[msg]
             await ctx.send(f'Your accent has been set to "{msg}"')
             self.save_accents()
         else: await ctx.send(accents.keys())
 
-def setup(bot):
-    bot.add_cog(Voice(bot))
+async def setup(bot):
+    await bot.add_cog(Voice(bot))

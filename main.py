@@ -3,18 +3,19 @@ import logging
 import random
 import asyncio
 from discord.ext import commands
+from dotenv import load_dotenv
+import os
 
 master = "Daylend#0001"
 masterid = 113156025984520192
 guildid = 688826072187404290
 blab_channelid = 689766528224460820
-names = ["Daylend", "everyone", "nobody", "Brizz", "Nemo", "Snu", "Jay", "Panda", "Multi", "Raiyun", "Frosty",
-         "Zeropa", "Caldra", "Jael", "Seki", "Zen"]
+names = ["Daylend", "everyone", "nobody", "Liuty", "Nemo", "Snu", "Jay", "Panda", "Multi", "Frosty",
+         "Zero", "Caldra", "Jael", "Seki", "Yolo", "Gutter", "Tad", "Smash"]
 cogs = ["Fun", "Owner", "Information", "Moderation", "Apocalypse", "Voice"]
 angrystuff_file = "paxfax_toxic.txt"
 blabs_file = "paxfax.txt"
 suggestion_file = "paxfax_suggestions.txt"
-key_file = "key.txt"
 prefix = '.'
 
 class PaxFax(commands.AutoShardedBot):
@@ -102,7 +103,7 @@ class PaxFax(commands.AutoShardedBot):
     async def load_cogs(self):
         try:
             for cog in cogs:
-                self.load_extension(f"cogs.{cog}")
+                await self.load_extension(f"cogs.{cog}")
                 print(f"Loaded cogs.{cog}")
         except Exception as e:
             print(f"Could not load extension {e}")
@@ -110,14 +111,10 @@ class PaxFax(commands.AutoShardedBot):
     async def reload_cogs(self):
         try:
             for cog in cogs:
-                self.reload_extension(f"cogs.{cog}")
+                await self.reload_extension(f"cogs.{cog}")
                 print(f"Reloaded cogs.{cog}")
         except Exception as e:
             print(f"Could not load extension {e}")
-
-def get_key():
-    with open(key_file) as f:
-        return f.readline()
 
 if __name__ == '__main__':
     logger = logging.getLogger('discord')
@@ -130,8 +127,11 @@ if __name__ == '__main__':
     intents.reactions = True
     intents.guilds = True
     intents.messages = True
+    intents.message_content = True
+
+    load_dotenv()
 
     client = PaxFax(intents=intents)
 
     client.names = names
-    client.run(get_key())
+    client.run(os.getenv("DISCORD_TOKEN"))

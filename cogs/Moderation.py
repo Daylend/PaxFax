@@ -35,5 +35,5 @@ class Moderation(commands.Cog):
         await ch.send(sorted(rolestr))
 
 
-def setup(bot):
-    bot.add_cog(Moderation(bot))
+async def setup(bot):
+    await bot.add_cog(Moderation(bot))

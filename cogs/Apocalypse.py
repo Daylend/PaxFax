@@ -1,9 +1,5 @@
 import discord
 from discord.ext import commands
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 import os.path
 import predicates
 
@@ -20,7 +16,7 @@ class Apocalypse(commands.Cog):
     testvc2 = 691906650289864734
     flex_roleid = 712302975821021194
     role_prefix = "attendance_"
-    announcement_chid = 756330674927173693
+    announcement_chid = 1101985453953003633
     attendance_channelid = 704239533914324992
     attendance_channelid2 = 782357585143267329
     apocalypse_guildid = 688826072187404290
@@ -30,12 +26,6 @@ class Apocalypse(commands.Cog):
     maybe_emote = "Maybe"
     no_emote = "Absent"
     emotedict = {yes_emote: "Yes'd Up", sit_emote: "Cannon", maybe_emote: "Maybe Going", no_emote: "Not Coming"}
-
-    # Sheets stuff
-    sheet_scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-    sheet_id = '1yMJP7vPklxtXj1N8xLtvPywLb4uS6GOul_luNtIcpTA'
-    sheet_range = 'Gearscores!B5:K205'
-    sheet_creds = None
 
     async def move_category_to_vc(self, vcc, vc, exclude_names=None):
         # Move everyone in normal voice category to prepost
@@ -61,8 +51,8 @@ class Apocalypse(commands.Cog):
         for msg in msgs:
             for reaction in msg.reactions:
                 # Look for emotes we actually care about
-                if reaction.custom_emoji and reaction.emoji.name in reactemotes:
-                    users = await reaction.users().flatten()
+                if reaction.is_custom_emoji() and reaction.emoji.name in reactemotes:
+                    users = [user async for user in reaction.users()]
                     # Add them to the nice list
                     for user in users:
                         if not user in reactusers:
@@ -109,29 +99,6 @@ class Apocalypse(commands.Cog):
                     return role
         return None
 
-    async def get_values_from_sheet(self):
-        token_path = "token.json"
-        cred_path = "credentials.json"
-
-        if os.path.exists(token_path):
-            self.sheet_creds = Credentials.from_authorized_user_file(token_path, self.sheet_scopes)
-        if not self.sheet_creds or not self.sheet_creds.valid:
-            if self.sheet_creds and self.sheet_creds.expired and self.sheet_creds.refresh_token:
-                self.sheet_creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    cred_path, self.sheet_scopes)
-                creds = flow.run_local_server(port=0)
-            # Save the credentials for the next run
-            with open(token_path, 'w') as token:
-                token.write(self.sheet_creds.to_json())
-
-        service = build('sheets', 'v4', credentials=self.sheet_creds)
-        sheet = service.spreadsheets()
-        result = sheet.values().get(spreadsheetId=self.sheet_id, range=self.sheet_range).execute()
-        values = result.get('values', [])
-        return values
-
     @predicates.is_in_apocalypse()
     @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name="validate")
@@ -139,7 +106,7 @@ class Apocalypse(commands.Cog):
         notvalid = ""
         values = await self.get_values_from_sheet()
         await ctx.guild.chunk()
-        members = await ctx.guild.fetch_members().flatten()
+        members = [m async for m in ctx.guild.fetch_members()]
 
         for row in values:
             if row:
@@ -148,42 +115,6 @@ class Apocalypse(commands.Cog):
 
 
         await ctx.send(notvalid)
-
-    @predicates.is_in_apocalypse()
-    @predicates.has_perms_or_owner(administrator=True)
-    @commands.command(name="gs")
-    async def _gs(self, ctx, *, day):
-        gs_sum = 0
-        players = 0
-
-        values = await self.get_values_from_sheet()
-
-        if values:
-            await ctx.guild.chunk()
-            ch = await self.bot.fetch_channel(self.attendance_channelid)
-            msgs = await ch.history(limit=100).flatten()
-            reactemotes = [self.yes_emote, self.maybe_emote, self.sit_emote]
-            reactmsg = await self.find_message_with_attachment(msgs, day)
-            if reactmsg is not None:
-                reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
-
-                for member in reactusers:
-                    for row in values:
-                        if row and str(member).lower() == row[0].lower():
-                            if row[4] != "Special Teams":
-                                gs_sum += int(row[9])
-                                players += 1
-                            break
-        gs_avg = gs_sum / players
-        embed = discord.Embed(
-            color=self.bot.embed_color,
-            title=f"Gearscore Average for {day}:",
-            description=f"GS Average: {round(gs_avg, 1)}\n"
-                        f"Players counted: {players}"
-        )
-        #await ctx.send(f"Gearscore average for {day}: {round(gs_avg, 1)} ({players} players counted)")
-        await ctx.send(embed=embed)
-
 
     @predicates.is_in_apocalypse()
     @predicates.has_perms_or_owner(administrator=True)
@@ -242,7 +173,7 @@ class Apocalypse(commands.Cog):
         members = await self.get_members_with_role(ctx, self.member_roleid)
         await ctx.guild.chunk()
         ch = await self.bot.fetch_channel(self.attendance_channelid2)
-        msgs = await ch.history(limit=100).flatten()
+        msgs = [msg async for msg in ch.history(limit=100)]
         reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
         reactmsg = await self.find_message_with_attachment(msgs, msg)
         reactusers = await self.find_members_with_reacts([reactmsg], reactemotes)
@@ -270,7 +201,7 @@ class Apocalypse(commands.Cog):
 
         # Get all msgs in attendance ch
         ch = await self.bot.fetch_channel(self.attendance_channelid)
-        msgs = await ch.history(limit=100).flatten()
+        msgs = [msg async for msg in ch.history(limit=100)]
         reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
         reactusers = await self.find_members_with_reacts(msgs, reactemotes)
 
@@ -294,7 +225,7 @@ class Apocalypse(commands.Cog):
     async def _attendance(self, ctx, *, msg):
         async with ctx.channel.typing():
             ch = await self.bot.fetch_channel(self.attendance_channelid)
-            msgs = await ch.history(limit=100).flatten()
+            msgs = [msg async for msg in ch.history(limit=100)]
             reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
             reactmsg = await self.find_message_with_attachment(msgs, msg)
             await ctx.guild.chunk()
@@ -324,7 +255,7 @@ class Apocalypse(commands.Cog):
     @predicates.has_perms_or_owner(administrator=True)
     @commands.command(name='announce')
     async def _announce(self, ctx, day, *, msg):
-        tempmsg = await ctx.send("Working... Please wait around 60 seconds.")
+        tempmsg = await ctx.send("Working... Please wait a very long time.")
         day = day.lower()
         await ctx.guild.chunk()
 
@@ -340,7 +271,8 @@ class Apocalypse(commands.Cog):
         newrole = await ctx.guild.create_role(name=self.role_prefix + day, reason="New announcement")
 
         ch = await self.bot.fetch_channel(self.attendance_channelid)
-        msgs = await ch.history(limit=100).flatten()
+        # msgs = await ch.history(limit=100).flatten()
+        msgs = [msg async for msg in ch.history(limit=100)]
         reactemotes = [self.yes_emote, self.maybe_emote, self.sit_emote]
         reactmsg = await self.find_message_with_attachment(msgs, day)
         if reactmsg is not None:
@@ -359,8 +291,10 @@ class Apocalypse(commands.Cog):
             # There shouldn't be more than 20 msgs. Just in case. :)
             await announcement_ch.purge(limit=20)
             await announcement_ch.set_permissions(newrole, read_messages=True, read_message_history=True)
-            await announcement_ch.send(f"{newrole.mention} {msg}")
-            #await announcement_ch.send(f"TEST: {newrole.name} {msg}")
+            if self.bot.debug:
+                await ctx.send(f"DEBUG: ROLE {msg}")
+            else:
+                await announcement_ch.send(f"{newrole.mention} {msg}")
         await tempmsg.delete()
 
     @_announce.error
@@ -370,12 +304,15 @@ class Apocalypse(commands.Cog):
                            "Example: ```.announce tuesday Hey guys war is on val1 today```")
         elif isinstance(error, commands.CommandOnCooldown):
             pass
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.send("You do not have the required permissions to use this command.")
         else:
             if self.bot.debug:
                 await ctx.send(error)
                 print(error)
             else:
                 await ctx.send("Something went wrong. Unable to announce. :(")
+                print(error)
 
     @predicates.is_in_apocalypse()
     @predicates.has_perms_or_owner(administrator=True)
@@ -386,7 +323,7 @@ class Apocalypse(commands.Cog):
 
         # Get all msgs in attendance ch
         ch = await self.bot.fetch_channel(self.attendance_channelid)
-        msgs = await ch.history(limit=100).flatten()
+        msgs = [msg async for msg in ch.history(limit=100)]
         reactemotes = [self.yes_emote, self.sit_emote, self.maybe_emote, self.no_emote]
         reactusers = await self.find_members_with_reacts(msgs, reactemotes)
 
@@ -462,5 +399,11 @@ class Apocalypse(commands.Cog):
                         if role is not None:
                             await user.remove_roles(role, reason="Removed reaction from attendance")
 
-def setup(bot):
-    bot.add_cog(Apocalypse(bot))
+    @predicates.is_in_apocalypse()
+    @predicates.has_perms_or_owner(administrator=True)
+    @commands.command(name='testperms')
+    async def _testperms(self, ctx):
+        await ctx.send("You have the correct perms")
+
+async def setup(bot):
+    await bot.add_cog(Apocalypse(bot))

@@ -8,3 +8,4 @@ env/
 *.bak
 key.txt
 paxfax*.txt
+.env

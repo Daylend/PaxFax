@@ -167,5 +167,5 @@ class Fun(commands.Cog):
             msg = await ctx.send('Usage:\n```"... [command]" to see a command\n"... [command] [text]" to set a command\n"... ?" for a list of commands```', delete_after=30)
 
 
-def setup(bot):
-    bot.add_cog(Fun(bot))
+async def setup(bot):
+    await bot.add_cog(Fun(bot))
